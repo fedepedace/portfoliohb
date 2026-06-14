@@ -501,7 +501,8 @@ footer {
           <button class="add-row-btn" onclick="addRow('stocks')">+ Agregar</button>
         </div>
       </div>
-      <table>
+      <div style="overflow-x:auto;">
+      <table style="min-width:600px;">
         <thead>
           <tr>
             <th>Ticker</th>
@@ -515,6 +516,7 @@ footer {
         </thead>
         <tbody id="tbody-stocks"></tbody>
       </table>
+      </div>
     </div>
 
     <!-- BONOS -->
@@ -646,9 +648,9 @@ footer {
 
 <script>
 // ─── STATE ───────────────────────────────────────────────
-const KEY = 'portfolio_dashboard_v47';
+const KEY = 'portfolio_dashboard_v49';
 let state = {
-  clientName: 'Cliente',
+  clientName: 'Bonzini',
   fx: 1450,
   stocks:  [],
   cedears: [],  // unused
