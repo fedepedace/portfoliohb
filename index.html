@@ -312,6 +312,10 @@ th .resizer { position: absolute; right: 0; top: 0; bottom: 0; width: 5px; curso
 th .resizer:hover, th .resizer.active { background: var(--accent); opacity: 0.7; }
 td { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .col-hidden { display: none; }
+/* Hide nombre column (col 2) */
+.hide-nombre th:nth-child(2), .hide-nombre td:nth-child(2) { display: none; }
+/* Hide costo column - stocks col 4, bonos col 4, ons col 4 */
+.hide-costo th:nth-child(4), .hide-costo td:nth-child(4) { display: none; }
 /* Default column widths - stocks */
 #tbody-stocks tr td:nth-child(1) { width:65px; min-width:65px; max-width:65px; }
 #tbody-stocks tr td:nth-child(2) { width:120px; min-width:80px; max-width:160px; }
@@ -506,11 +510,11 @@ footer {
         <thead>
           <tr>
             <th>Ticker</th>
-            <th>Nombre</th>
+            <th class="col-nombre-hdr" style="min-width:24px;">Nom. <button class="eye-btn" onclick="toggleNombre()" title="Mostrar/ocultar nombre">👁</button></th>
             <th>Cantidad</th>
             <th class="col-costo-hdr" style="min-width:20px;">Costo <button class="eye-btn" onclick="toggleCosto()" title="Mostrar/ocultar costo">👁</button></th>
             <th>Precio mercado</th>
-            <th>Monto ARS</th>
+            <th>Monto</th>
             <th>P&amp;L %</th>
           </tr>
         </thead>
@@ -543,7 +547,7 @@ footer {
             <th>Cantidad</th>
             <th class="col-costo-hdr" style="min-width:20px;">Costo <button class="eye-btn" onclick="toggleCosto()" title="Mostrar/ocultar costo">👁</button></th>
             <th>Mercado</th>
-            <th>Monto ARS</th>
+            <th>Monto</th>
             <th>P&amp;L %</th>
             <th>Tipo</th>
           </tr>
@@ -578,7 +582,7 @@ footer {
             <th>Cantidad</th>
             <th class="col-costo-hdr" style="min-width:20px;">Costo <button class="eye-btn" onclick="toggleCosto()" title="Mostrar/ocultar costo">👁</button></th>
             <th>Mercado</th>
-            <th>Monto ARS</th>
+            <th>Monto</th>
             <th>P&amp;L %</th>
           </tr>
         </thead>
@@ -648,7 +652,7 @@ footer {
 
 <script>
 // ─── STATE ───────────────────────────────────────────────
-const KEY = 'portfolio_dashboard_v49';
+const KEY = 'portfolio_dashboard_v53';
 let state = {
   clientName: 'Bonzini',
   fx: 1450,
@@ -761,6 +765,13 @@ function fmt(n,decimals=2) {
 }
 function fmtUSD(n)  { return 'USD '+fmt(n); }
 function fmtARS(n)  { return 'ARS '+fmt(n,0); }
+function fmtM(n) {
+  if(!n||isNaN(n)) return '—';
+  if(Math.abs(n)>=1e9) return (n/1e9).toFixed(1).replace('.',',')+'B';
+  if(Math.abs(n)>=1e6) return (n/1e6).toFixed(1).replace('.',',')+'M';
+  if(Math.abs(n)>=1e3) return (n/1e3).toFixed(1).replace('.',',')+'K';
+  return fmt(n,0);
+}
 function fmtPct(n)  { if(n===null) return '—'; const r=Math.round(n); return (r>=0?'+':'')+r+'%'; }
 
 // ─── RENDER STOCKS ───────────────────────────────────────
@@ -773,9 +784,9 @@ function renderStocks() {
       <td class="td-ticker"><input class="inline-input" value="${esc(r.ticker)}" style="font-weight:600;font-size:14px;width:70px;" oninput="upd('stocks',${r.id},'ticker',this.value)"/></td>
       <td class="td-name"><input class="inline-input td-name" value="${esc(r.name)}" style="max-width:130px;" oninput="upd('stocks',${r.id},'name',this.value)"/></td>
       <td class="td-mono"><input class="inline-input td-mono" type="number" value="${r.qty}" style="width:55px;" oninput="upd('stocks',${r.id},'qty',+this.value)"/></td>
-      <td class="td-muted col-costo"><input class="inline-input td-muted" type="number" value="${r.entry}" step="0.01" style="width:55px;" oninput="upd('stocks',${r.id},'entry',+this.value)"/></td>
+      <td class="td-muted"><input class="inline-input td-muted" type="number" value="${r.entry}" step="0.01" style="width:55px;" oninput="upd('stocks',${r.id},'entry',+this.value)"/></td>
       <td class="td-mono"><input class="inline-input td-mono" type="number" value="${r.current}" step="0.01" style="width:55px;" oninput="upd('stocks',${r.id},'current',+this.value)"/></td>
-      <td class="td-mono">${(r.currency||'ARS')==='ARS'?fmtARS((r.qty||0)*(r.current||0)):fmtUSD(val)}</td>
+      <td class="td-mono col-monto">${(r.currency||'ARS')==='ARS'?fmtM((r.qty||0)*(r.current||0)):fmtM(val*fx())}</td>
       <td class="td-mono ${pc}">${fmtPct(pnl)}</td>
     </tr>`;
   }).join('');
@@ -792,7 +803,7 @@ function renderCedears() {
       <td class="td-ticker"><input class="inline-input" value="${esc(r.ticker)}" style="font-weight:600;font-size:14px;width:70px;" oninput="upd('cedears',${r.id},'ticker',this.value)"/></td>
       <td class="td-name"><input class="inline-input td-name" value="${esc(r.name)}" style="max-width:110px;" oninput="upd('cedears',${r.id},'name',this.value)"/></td>
       <td class="td-mono"><input class="inline-input td-mono" type="number" value="${r.qty}" style="width:60px;" oninput="upd('cedears',${r.id},'qty',+this.value)"/></td>
-      <td class="td-muted col-costo"><input class="inline-input td-muted" type="number" value="${r.entry}" style="width:80px;" oninput="upd('cedears',${r.id},'entry',+this.value)"/></td>
+      <td class="td-muted"><input class="inline-input td-muted" type="number" value="${r.entry}" style="width:80px;" oninput="upd('cedears',${r.id},'entry',+this.value)"/></td>
       <td class="td-mono"><input class="inline-input td-mono" type="number" value="${r.current}" style="width:80px;" oninput="upd('cedears',${r.id},'current',+this.value)"/></td>
       <td class="td-muted"><input class="inline-input td-muted" type="number" value="${r.ratio||10}" style="width:45px;" oninput="upd('cedears',${r.id},'ratio',+this.value)"/></td>
       <td class="td-mono">${fmtARS((r.qty||0)*(r.current||0))}</td>
@@ -813,9 +824,9 @@ function renderBonos() {
       <td class="td-ticker"><input class="inline-input" value="${esc(r.ticker)}" style="font-weight:600;font-size:14px;width:60px;" oninput="upd('bonos',${r.id},'ticker',this.value)"/></td>
       <td class="td-name"><input class="inline-input td-name" value="${esc(r.name)}" style="max-width:110px;" oninput="upd('bonos',${r.id},'name',this.value)"/></td>
       <td class="td-mono"><input class="inline-input td-mono" type="number" value="${r.qty}" style="width:80px;" oninput="upd('bonos',${r.id},'qty',+this.value)"/></td>
-      <td class="td-muted col-costo"><input class="inline-input td-muted" type="number" value="${r.entry}" step="0.01" style="width:60px;" oninput="upd('bonos',${r.id},'entry',+this.value)"/></td>
+      <td class="td-muted"><input class="inline-input td-muted" type="number" value="${r.entry}" step="0.01" style="width:60px;" oninput="upd('bonos',${r.id},'entry',+this.value)"/></td>
       <td class="td-mono"><input class="inline-input td-mono" type="number" value="${r.current}" step="0.01" style="width:60px;" oninput="upd('bonos',${r.id},'current',+this.value)"/></td>
-      <td class="td-mono">${fmtARS((r.qty||0)*(r.current||0))}</td>
+      <td class="td-mono col-monto">${fmtM((r.qty||0)*(r.current||0))}</td>
       <td class="td-mono ${pc}">${fmtPct(pnl)}</td>
       <td><select class="inline-input td-muted" style="width:50px;cursor:pointer;" onchange="upd('bonos',${r.id},'tipo',this.value)">
         <option value="HD"  ${(r.tipo||'HD')==='HD' ?'selected':''}>HD</option>
@@ -838,7 +849,7 @@ function renderOns() {
       <td class="td-ticker"><input class="inline-input" value="${esc(r.ticker)}" style="font-weight:600;font-size:14px;width:70px;" oninput="upd('ons',${r.id},'ticker',this.value)"/></td>
       <td class="td-name"><input class="inline-input td-name" value="${esc(r.name)}" style="max-width:130px;" oninput="upd('ons',${r.id},'name',this.value)"/></td>
       <td class="td-mono"><input class="inline-input td-mono" type="number" value="${r.qty}" style="width:70px;" oninput="upd('ons',${r.id},'qty',+this.value)"/></td>
-      <td class="td-muted col-costo"><input class="inline-input td-muted" type="number" value="${r.entry}" step="0.01" style="width:65px;" oninput="upd('ons',${r.id},'entry',+this.value)"/></td>
+      <td class="td-muted"><input class="inline-input td-muted" type="number" value="${r.entry}" step="0.01" style="width:65px;" oninput="upd('ons',${r.id},'entry',+this.value)"/></td>
       <td class="td-mono"><input class="inline-input td-mono" type="number" value="${r.current}" step="0.01" style="width:65px;" oninput="upd('ons',${r.id},'current',+this.value)"/></td>
       <td class="td-mono">${fmtARS((r.qty||0)*(r.current||0))}</td>
       <td class="td-mono ${pc}">${fmtPct(pnl)}</td>
@@ -1004,25 +1015,36 @@ function exportCSV() {
   a.download=`portfolio_${state.clientName.replace(/\s+/g,'_')}.csv`; a.click();
 }
 
-// ─── TOGGLE COSTO COLUMN ─────────────────────────────────
-let costoVisible = true;
+// ─── TOGGLE COLUMNS ──────────────────────────────────────
+let costoVisible  = false;
+let nombreVisible = false;
+
+function toggleNombre() {
+  nombreVisible = !nombreVisible;
+  document.querySelectorAll('.col-nombre').forEach(el => {
+    el.style.display = nombreVisible ? '' : 'none';
+  });
+  document.querySelectorAll('.col-nombre-hdr').forEach(el => {
+    el.style.minWidth = nombreVisible ? '' : '28px';
+    el.style.width    = nombreVisible ? '' : '28px';
+    el.style.padding  = nombreVisible ? '' : '8px 4px';
+    const txt = el.childNodes[0];
+    if(txt && txt.nodeType===3) txt.textContent = nombreVisible ? 'Nom. ' : '';
+  });
+  document.querySelectorAll('.col-nombre-hdr .eye-btn').forEach(btn => {
+    btn.style.opacity = nombreVisible ? '1' : '0.4';
+  });
+}
+
 function toggleCosto() {
   costoVisible = !costoVisible;
-  document.querySelectorAll('.col-costo').forEach(el => {
-    el.style.display = costoVisible ? '' : 'none';
-  });
+  document.querySelectorAll('table').forEach(t => t.classList.toggle('hide-costo', !costoVisible));
   document.querySelectorAll('.col-costo-hdr').forEach(el => {
-    el.style.minWidth = costoVisible ? '' : '28px';
-    el.style.width    = costoVisible ? '' : '28px';
-    el.style.padding  = costoVisible ? '' : '8px 4px';
-    // hide the label text, keep the eye button
     const txt = el.childNodes[0];
-    if (txt && txt.nodeType === 3) txt.textContent = costoVisible ? 'Costo ' : '';
+    if(txt && txt.nodeType===3) txt.textContent = costoVisible ? 'Costo ' : '';
+    el.style.padding = costoVisible ? '' : '8px 2px';
   });
-  document.querySelectorAll('.eye-btn').forEach(btn => {
-    btn.textContent = costoVisible ? '👁' : '👁‍🗨️';
-    btn.style.opacity = costoVisible ? '1' : '0.4';
-  });
+  document.querySelectorAll('.col-costo-hdr .eye-btn').forEach(btn => btn.style.opacity = costoVisible ? '1' : '0.4');
 }
 
 // ─── RESIZABLE COLUMNS ───────────────────────────────────
@@ -1083,8 +1105,10 @@ function renderAll() {
   setTimeout(()=>{
     initResizers();
     // re-apply costo visibility after DOM rebuild
-    document.querySelectorAll('.col-costo').forEach(el => {
-      el.style.display = costoVisible ? '' : 'none';
+    // re-apply column visibility after DOM rebuild
+    document.querySelectorAll('table').forEach(t => {
+      t.classList.toggle('hide-costo', !costoVisible);
+      t.classList.toggle('hide-nombre', !nombreVisible);
     });
   }, 0);
 }
@@ -1099,6 +1123,11 @@ document.getElementById('date-badge').textContent = new Date().toLocaleDateStrin
 
 renderAll();
 initResizers();
+// Apply default hidden columns
+document.querySelectorAll('table').forEach(t => { t.classList.add('hide-costo'); t.classList.add('hide-nombre'); });
+document.querySelectorAll('.col-costo-hdr').forEach(el => { const txt=el.childNodes[0]; if(txt&&txt.nodeType===3) txt.textContent=''; el.style.padding='8px 2px'; });
+document.querySelectorAll('.col-nombre-hdr').forEach(el => { const txt=el.childNodes[0]; if(txt&&txt.nodeType===3) txt.textContent=''; el.style.padding='8px 2px'; });
+document.querySelectorAll('.col-costo-hdr .eye-btn, .col-nombre-hdr .eye-btn').forEach(btn => btn.style.opacity='0.4');
 </script>
 </body>
 </html>
