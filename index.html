@@ -509,13 +509,13 @@ footer {
       <table style="min-width:600px;">
         <thead>
           <tr>
-            <th>Ticker</th>
+            <th class="sortable-th" onclick="sortTable('stocks','ticker')" style="cursor:pointer;user-select:none;">Ticker <span id="sort-icon-stocks-ticker" style="opacity:0.4;">⇕</span></th>
             <th class="col-nombre-hdr" style="min-width:24px;">Nom. <button class="eye-btn" onclick="toggleNombre()" title="Mostrar/ocultar nombre">👁</button></th>
             <th>Cantidad</th>
             <th class="col-costo-hdr" style="min-width:20px;">Costo <button class="eye-btn" onclick="toggleCosto()" title="Mostrar/ocultar costo">👁</button></th>
             <th>Precio mercado</th>
-            <th>Monto</th>
-            <th>P&amp;L %</th>
+            <th class="sortable-th" onclick="sortTable('stocks','monto')" style="cursor:pointer;user-select:none;">Monto <span id="sort-icon-stocks-monto" style="opacity:0.4;">⇕</span></th>
+            <th class="sortable-th" onclick="sortTable('stocks','pnl')" style="cursor:pointer;user-select:none;">P&amp;L % <span id="sort-icon-stocks-pnl" style="opacity:0.4;">⇕</span></th>
           </tr>
         </thead>
         <tbody id="tbody-stocks"></tbody>
@@ -542,13 +542,13 @@ footer {
       <table style="min-width:820px;">
         <thead>
           <tr>
-            <th>Ticker</th>
+            <th class="sortable-th" onclick="sortTable('bonos','ticker')" style="cursor:pointer;user-select:none;">Ticker <span id="sort-icon-bonos-ticker" style="opacity:0.4;">⇕</span></th>
             <th>Descripción</th>
             <th>Cantidad</th>
             <th class="col-costo-hdr" style="min-width:20px;">Costo <button class="eye-btn" onclick="toggleCosto()" title="Mostrar/ocultar costo">👁</button></th>
             <th>Mercado</th>
-            <th>Monto</th>
-            <th>P&amp;L %</th>
+            <th class="sortable-th" onclick="sortTable('bonos','monto')" style="cursor:pointer;user-select:none;">Monto <span id="sort-icon-bonos-monto" style="opacity:0.4;">⇕</span></th>
+            <th class="sortable-th" onclick="sortTable('bonos','pnl')" style="cursor:pointer;user-select:none;">P&amp;L % <span id="sort-icon-bonos-pnl" style="opacity:0.4;">⇕</span></th>
             <th>Tipo</th>
           </tr>
         </thead>
@@ -577,13 +577,13 @@ footer {
       <table style="min-width:700px;">
         <thead>
           <tr>
-            <th>Ticker</th>
+            <th class="sortable-th" onclick="sortTable('ons','ticker')" style="cursor:pointer;user-select:none;">Ticker <span id="sort-icon-ons-ticker" style="opacity:0.4;">⇕</span></th>
             <th>Descripción</th>
             <th>Cantidad</th>
             <th class="col-costo-hdr" style="min-width:20px;">Costo <button class="eye-btn" onclick="toggleCosto()" title="Mostrar/ocultar costo">👁</button></th>
             <th>Mercado</th>
-            <th>Monto</th>
-            <th>P&amp;L %</th>
+            <th class="sortable-th" onclick="sortTable('ons','monto')" style="cursor:pointer;user-select:none;">Monto <span id="sort-icon-ons-monto" style="opacity:0.4;">⇕</span></th>
+            <th class="sortable-th" onclick="sortTable('ons','pnl')" style="cursor:pointer;user-select:none;">P&amp;L % <span id="sort-icon-ons-pnl" style="opacity:0.4;">⇕</span></th>
           </tr>
         </thead>
         <tbody id="tbody-ons"></tbody>
@@ -652,7 +652,7 @@ footer {
 
 <script>
 // ─── STATE ───────────────────────────────────────────────
-const KEY = 'portfolio_dashboard_v53';
+const KEY = 'portfolio_dashboard_v60';
 let state = {
   clientName: 'Bonzini',
   fx: 1450,
@@ -664,60 +664,64 @@ let state = {
 
 try {
   const s = localStorage.getItem(KEY);
-  if (s) state = { ...state, ...JSON.parse(s) };
+  if (s) {
+    const saved = JSON.parse(s);
+    // Solo restaurar configuración del usuario, no los datos de posiciones
+    if (saved.clientName) state.clientName = saved.clientName;
+    if (saved.fx) state.fx = saved.fx;
+    if (saved.caucion !== undefined) state.caucion = saved.caucion;
+  }
 } catch(e) {}
 
-// Acciones BYMA del cliente
-if (!state.stocks.length && !state.cedears.length && !state.bonos.length) {
+// Acciones BYMA del cliente — siempre carga del código
+{
   state.stocks = [
-    { id: uid(), ticker:'A3',    name:'A3 Mercados',            qty:7534,   current:3450.000,  entry:3093.829, currency:'ARS' },
-    { id: uid(), ticker:'BHIP',  name:'Bco. Hipotecario',           qty:107497, current:361.000,   entry:443.988,  currency:'ARS' },
-    { id: uid(), ticker:'BPAT',  name:'Bco. Patagonia',              qty:9708,   current:2120.000,  entry:2332.819, currency:'ARS' },
-    { id: uid(), ticker:'BYMA',  name:'BYMA', qty:294538, current:304.750,   entry:262.041,  currency:'ARS' },
-    { id: uid(), ticker:'CEPU',  name:'Central Puerto',              qty:90790,  current:2371.0,  entry:2398.984, currency:'ARS' },
-    { id: uid(), ticker:'CRES',  name:'Cresud',                      qty:9449,   current:1844.000,  entry:1766.018, currency:'ARS' },
-    { id: uid(), ticker:'GGAL',  name:'Gpo. Fin. Galicia',          qty:37206,  current:8210.0,  entry:8526.433, currency:'ARS' },
-    { id: uid(), ticker:'LOMA',  name:'Loma Negra',             qty:75082,  current:3737.5,  entry:3688.289, currency:'ARS' },
-    { id: uid(), ticker:'METR',  name:'Metrogas',                    qty:122406,  current:1960.0,  entry:2569.228, currency:'ARS' },
-    { id: uid(), ticker:'TGSU2', name:'TGS',       qty:5801,   current:9890.0,  entry:9479.334, currency:'ARS' },
-    { id: uid(), ticker:'TRAN',  name:'Transener',           qty:12923,  current:3995.0,  entry:3490.908, currency:'ARS' },
-    { id: uid(), ticker:'TXAR',  name:'Ternium Arg.',           qty:75573,  current:699.5,   entry:567.120,  currency:'ARS' },
-    { id: uid(), ticker:'VALO',  name:'Bco. de Valores',       qty:95144,  current:632.5,   entry:426.737,  currency:'ARS' },
-    { id: uid(), ticker:'ALUAR', name:'Aluar',          qty:31754,  current:1029.000,  entry:740.670,  currency:'ARS' },
-    { id: uid(), ticker:'ETHA',  name:'ETH Argentina',                qty:9719,   current:3737.500,  entry:6399.594, currency:'ARS' },
-    { id: uid(), ticker:'NU',   name:'Nu Holdings',                  qty:23692,  current:9105.000,  entry:13847.281, currency:'ARS' },
-    { id: uid(), ticker:'BBAR',  name:'BBVA Argentina',     qty:1208,   current:10320.000, entry:8220.500,  currency:'ARS' },
-    { id: uid(), ticker:'TGNO4', name:'TGN',   qty:18116,  current:4285.000,  entry:4265.292,  currency:'ARS' },
-    { id: uid(), ticker:'PAMP',  name:'Pampa Energía',            qty:13479,  current:5300.0,  entry:5390.000,  currency:'ARS' },
-    { id: uid(), ticker:'YPFD',  name:'YPF',                       qty:1307,   current:83475.0, entry:55425.000, currency:'ARS' },
-    { id: uid(), ticker:'MELI',  name:'MercadoLibre',            qty:11778,  current:19860.000, entry:27193.673,currency:'ARS' },
+    { id: uid(), ticker:'A3',    name:'A3 Mercados',            qty:7534,   current:3370.0,  entry:3093.829, currency:'ARS' },
+    { id: uid(), ticker:'ALUAR', name:'Aluar',          qty:31754,  current:988.5,  entry:740.67,  currency:'ARS' },
+    { id: uid(), ticker:'BBAR',  name:'BBVA Argentina',     qty:3132,   current:10430.0, entry:9552.913,  currency:'ARS' },
+    { id: uid(), ticker:'BHIP',  name:'Bco. Hipotecario',           qty:107497, current:359.5,   entry:443.988,  currency:'ARS' },
+    { id: uid(), ticker:'BMA',   name:'Banco Macro',                  qty:6759,   current:14660.0, entry:14490.822, currency:'ARS' },
+    { id: uid(), ticker:'BPAT',  name:'Bco. Patagonia',              qty:14338,   current:2125.0,  entry:2264.69, currency:'ARS' },
+    { id: uid(), ticker:'BYMA',  name:'BYMA', qty:294538, current:302.5,   entry:262.041,  currency:'ARS' },
+    { id: uid(), ticker:'CEPU',  name:'Central Puerto',              qty:45395,  current:2377.0,  entry:2398.984, currency:'ARS' },
+    { id: uid(), ticker:'CRES',  name:'Cresud',                      qty:9449,   current:1829.0,  entry:1766.018, currency:'ARS' },
+    { id: uid(), ticker:'ETHA',  name:'ETH Argentina',                qty:9719,   current:3957.5,  entry:6399.594, currency:'ARS' },
+    { id: uid(), ticker:'GGAL',  name:'Gpo. Fin. Galicia',          qty:46902,  current:8240.0,  entry:8457.674, currency:'ARS' },
+    { id: uid(), ticker:'LOMA',  name:'Loma Negra',             qty:46372,  current:3670.0,  entry:3688.289, currency:'ARS' },
+    { id: uid(), ticker:'MELI',  name:'MercadoLibre',            qty:11778,  current:21040.0, entry:27193.673,currency:'ARS' },
+    { id: uid(), ticker:'METR',  name:'Metrogas',                    qty:67549,  current:1952.0,  entry:2569.228, currency:'ARS' },
+    { id: uid(), ticker:'NU',   name:'Nu Holdings',                  qty:23692,  current:9835.0,  entry:13847.281, currency:'ARS' },
+    { id: uid(), ticker:'PAMP',  name:'Pampa Energía',            qty:13479,  current:5110.0,  entry:5390.0,  currency:'ARS' },
+    { id: uid(), ticker:'SUPV',  name:'Supervielle',                  qty:7556,   current:3355.0,  entry:3292.040,  currency:'ARS' },
+    { id: uid(), ticker:'TRAN',  name:'Transener',           qty:12923,  current:3935.0,  entry:3490.908, currency:'ARS' },
+    { id: uid(), ticker:'TXAR',  name:'Ternium Arg.',           qty:75573,  current:686.5,   entry:567.12,  currency:'ARS' },
+    { id: uid(), ticker:'VALO',  name:'Bco. de Valores',       qty:110874,  current:631.0,   entry:456.095,  currency:'ARS' },
   ];
-  state.caucion = 557217371;
+  state.caucion = 558657304;
   state.ons = [
-    { id: uid(), ticker:'IRCPO', name:'ON IRSA Prop.',             qty:6602,   current:1590.900,  entry:1557.400,  currency:'ARS' },
-    { id: uid(), ticker:'TLCPO', name:'ON Telecom 2026', qty:207728, current:1627.200, entry:1530.423, currency:'ARS' },
-    { id: uid(), ticker:'YMCJO', name:'ON YPF 2033', qty:172694, current:1556.000, entry:1453.987, currency:'ARS' },
+    { id: uid(), ticker:'IRCPO', name:'ON IRSA Prop.',             qty:6602,   current:1591.0,  entry:1557.4,  currency:'ARS' },
+    { id: uid(), ticker:'TLCPO', name:'ON Telecom 2026', qty:207728, current:1628.7, entry:1530.423, currency:'ARS' },
+    { id: uid(), ticker:'YMCJO', name:'ON YPF 2033', qty:172694, current:1553.0, entry:1453.987, currency:'ARS' },
   ];
   state.cedears = [];
   state.bonos = [
-    { id: uid(), ticker:'AE38',  name:'Bono Arg. 2038',              qty:425043, current:1209.5, entry:1132.693, currency:'ARS', tipo:'HD' },
-    { id: uid(), ticker:'AL30',  name:'Bono Arg. 2030',         qty:159044, current:936.5,  entry:868.287,  currency:'ARS', tipo:'HD' },
-    { id: uid(), ticker:'AL41',  name:'Bono Arg. 2041',          qty:1037629, current:1097.300, entry:860.506,  currency:'ARS', tipo:'HD' },
-    { id: uid(), ticker:'AO28',  name:'Bono Tes. 2028',     qty:60914,  current:1398.5, entry:1353.681, currency:'ARS', tipo:'HD' },
-    { id: uid(), ticker:'BA37D', name:'Prov. BsAs 2037', qty:127721,  current:1117.000, entry:1112.966, currency:'ARS', tipo:'HD' },
-    { id: uid(), ticker:'BB37D', name:'Pcia. BsAs 2037',      qty:42119,  current:1127.000, entry:1126.965, currency:'ARS', tipo:'HD' },
-    { id: uid(), ticker:'GD29',  name:'Bono Arg. 2029',       qty:480,    current:963.000,  entry:926.00000,  currency:'ARS', tipo:'HD' },
-    { id: uid(), ticker:'GD30',  name:'Bono Arg. 2030',     qty:91380,   current:957.0,  entry:931.610,  currency:'ARS', tipo:'HD' },
-    { id: uid(), ticker:'GD41',  name:'Bono Arg. 2041',     qty:730960,     current:1134.0, entry:1041.008, currency:'ARS' },
-    { id: uid(), ticker:'AL29',  name:'Bono Arg. 2029',         qty:30720,  current:942.300,  entry:915.144,   currency:'ARS', tipo:'HD' },
-    { id: uid(), ticker:'GD38',  name:'Bono Arg. 2038',         qty:46602,  current:1271.800, entry:1248.600,  currency:'ARS', tipo:'HD' },
-    { id: uid(), ticker:'TX28',  name:'CER 2028',       qty:6740582,    current:16.850,   entry:17.642,    currency:'ARS', tipo:'CER' },
-    { id: uid(), ticker:'TZXM9', name:'CER 03/29', qty:52353577, current:0.883, entry:0.829, currency:'ARS', tipo:'CER' },
-    { id: uid(), ticker:'TZXS8', name:'CER 09/28', qty:422364877,  current:0.9195,   entry:0.87235,   currency:'ARS', tipo:'CER' },
-
+    { id: uid(), ticker:'AE38',  name:'Bono Arg. 2038',              qty:588907, current:1214.7, entry:1158.018, currency:'ARS', tipo:'HD' },
+    { id: uid(), ticker:'AL29',  name:'Bono Arg. 2029',         qty:30720,  current:941.8,  entry:915.144,   currency:'ARS', tipo:'HD' },
+    { id: uid(), ticker:'AL30',  name:'Bono Arg. 2030',         qty:159044, current:936.2,  entry:868.287,  currency:'ARS', tipo:'HD' },
+    { id: uid(), ticker:'AL41',  name:'Bono Arg. 2041',          qty:1063376, current:1100.5, entry:866.721,  currency:'ARS', tipo:'HD' },
+    { id: uid(), ticker:'AO28',  name:'Bono Tes. 2028',     qty:60914,  current:1413.6, entry:1353.681, currency:'ARS', tipo:'HD' },
+    { id: uid(), ticker:'BA37D', name:'Prov. BsAs 2037', qty:171819,  current:1121.8, entry:1118.261, currency:'ARS', tipo:'HD' },
+    { id: uid(), ticker:'BB37D', name:'Pcia. BsAs 2037',      qty:42119,  current:1133.4, entry:1126.965, currency:'ARS', tipo:'HD' },
+    { id: uid(), ticker:'GD29',  name:'Bono Arg. 2029',       qty:480,    current:960.6,  entry:926.0,  currency:'ARS', tipo:'HD' },
+    { id: uid(), ticker:'GD30',  name:'Bono Arg. 2030',     qty:91380,   current:958.3,  entry:931.61,  currency:'ARS', tipo:'HD' },
+    { id: uid(), ticker:'GD38',  name:'Bono Arg. 2038',         qty:46602,  current:1278.0, entry:1248.6,  currency:'ARS', tipo:'HD' },
+    { id: uid(), ticker:'GD41',  name:'Bono Arg. 2041',     qty:797285,     current:1133.0, entry:1050.023, currency:'ARS' },
+    { id: uid(), ticker:'TX28',  name:'CER 2028',       qty:6740582,    current:16.825,   entry:17.642,    currency:'ARS', tipo:'CER' },
+    { id: uid(), ticker:'TZXM9', name:'CER 03/29', qty:52353577, current:0.889, entry:0.829, currency:'ARS', tipo:'CER' },
+    { id: uid(), ticker:'TZXS8', name:'CER 09/28', qty:422364877,  current:0.9235,   entry:0.872,   currency:'ARS', tipo:'CER' },
   ];
   save();
-}
+} // fin bloque datos
 
 function uid() { return Date.now() + Math.random(); }
 function save() {
@@ -1015,6 +1019,75 @@ function exportCSV() {
   a.download=`portfolio_${state.clientName.replace(/\s+/g,'_')}.csv`; a.click();
 }
 
+// ─── SORTING ─────────────────────────────────────────────
+let sortState = {}; // { stocks: {col:'monto', dir:1}, bonos: {...}, ons: {...} }
+
+function getMontoARS(r, section) {
+  if (section === 'cedears') {
+    return (r.qty||0)*(r.current||0);
+  }
+  return (r.qty||0)*(r.current||0);
+}
+
+function getPnl(r, section) {
+  if (section === 'stocks') return stockPnl(r);
+  if (section === 'cedears') return cedearPnl(r);
+  if (section === 'bonos' || section === 'ons') {
+    if(!r.entry||!r.current) return null;
+    return (r.current-r.entry)/r.entry*100;
+  }
+  return null;
+}
+
+function sortTable(section, col) {
+  const current = sortState[section] || { col: null, dir: 1 };
+  let dir = 1;
+  if (current.col === col) dir = -current.dir;
+  sortState[section] = { col, dir };
+
+  state[section].sort((a, b) => {
+    let va, vb;
+    if (col === 'ticker') {
+      va = (a.ticker || '').toUpperCase();
+      vb = (b.ticker || '').toUpperCase();
+      if (va < vb) return -1 * dir;
+      if (va > vb) return 1 * dir;
+      return 0;
+    }
+    if (col === 'monto') {
+      va = getMontoARS(a, section);
+      vb = getMontoARS(b, section);
+    } else {
+      va = getPnl(a, section);
+      vb = getPnl(b, section);
+      if (va === null) va = -Infinity;
+      if (vb === null) vb = -Infinity;
+    }
+    return (va - vb) * dir;
+  });
+
+  save();
+  renderAll();
+  updateSortIcons();
+}
+
+function updateSortIcons() {
+  ['stocks','cedears','bonos','ons'].forEach(sec => {
+    ['monto','pnl'].forEach(col => {
+      const el = document.getElementById(`sort-icon-${sec}-${col}`);
+      if (!el) return;
+      const st = sortState[sec];
+      if (st && st.col === col) {
+        el.textContent = st.dir === 1 ? '▲' : '▼';
+        el.style.opacity = '1';
+      } else {
+        el.textContent = '⇕';
+        el.style.opacity = '0.4';
+      }
+    });
+  });
+}
+
 // ─── TOGGLE COLUMNS ──────────────────────────────────────
 let costoVisible  = false;
 let nombreVisible = false;
@@ -1110,6 +1183,7 @@ function renderAll() {
       t.classList.toggle('hide-costo', !costoVisible);
       t.classList.toggle('hide-nombre', !nombreVisible);
     });
+    updateSortIcons();
   }, 0);
 }
 
