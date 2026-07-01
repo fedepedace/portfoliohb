@@ -478,7 +478,7 @@ footer {
       <div class="date-badge" id="date-badge"></div>
       <div class="fx-box">
         <label>USD / ARS</label>
-        <input type="number" id="fx-rate" value="1450" step="1" min="1" oninput="renderAll()" />
+        <input type="number" id="fx-rate" value="1521.37" step="1" min="1" oninput="renderAll()" />
       </div>
     </div>
   </div>
@@ -655,7 +655,7 @@ footer {
 const KEY = 'portfolio_dashboard_v60';
 let state = {
   clientName: 'Bonzini',
-  fx: 1450,
+  fx: 1521.37,
   stocks:  [],
   cedears: [],  // unused
   bonos:   [],
@@ -668,7 +668,7 @@ try {
     const saved = JSON.parse(s);
     // Solo restaurar configuración del usuario, no los datos de posiciones
     if (saved.clientName) state.clientName = saved.clientName;
-    if (saved.fx) state.fx = saved.fx;
+    // fx fijo desde el código: no se restaura el valor guardado del navegador
     if (saved.caucion !== undefined) state.caucion = saved.caucion;
   }
 } catch(e) {}
@@ -676,49 +676,48 @@ try {
 // Acciones BYMA del cliente — siempre carga del código
 {
   state.stocks = [
-    { id: uid(), ticker:'A3',    name:'A3 Mercados',            qty:7534,   current:3370.0,  entry:3093.829, currency:'ARS' },
-    { id: uid(), ticker:'ALUAR', name:'Aluar',          qty:31754,  current:988.5,  entry:740.67,  currency:'ARS' },
-    { id: uid(), ticker:'BBAR',  name:'BBVA Argentina',     qty:3132,   current:10430.0, entry:9552.913,  currency:'ARS' },
-    { id: uid(), ticker:'BHIP',  name:'Bco. Hipotecario',           qty:107497, current:359.5,   entry:443.988,  currency:'ARS' },
-    { id: uid(), ticker:'BMA',   name:'Banco Macro',                  qty:6759,   current:14660.0, entry:14490.822, currency:'ARS' },
-    { id: uid(), ticker:'BPAT',  name:'Bco. Patagonia',              qty:14338,   current:2125.0,  entry:2264.69, currency:'ARS' },
-    { id: uid(), ticker:'BYMA',  name:'BYMA', qty:294538, current:302.5,   entry:262.041,  currency:'ARS' },
-    { id: uid(), ticker:'CEPU',  name:'Central Puerto',              qty:45395,  current:2377.0,  entry:2398.984, currency:'ARS' },
-    { id: uid(), ticker:'CRES',  name:'Cresud',                      qty:9449,   current:1829.0,  entry:1766.018, currency:'ARS' },
-    { id: uid(), ticker:'ETHA',  name:'ETH Argentina',                qty:9719,   current:3957.5,  entry:6399.594, currency:'ARS' },
-    { id: uid(), ticker:'GGAL',  name:'Gpo. Fin. Galicia',          qty:46902,  current:8240.0,  entry:8457.674, currency:'ARS' },
-    { id: uid(), ticker:'LOMA',  name:'Loma Negra',             qty:46372,  current:3670.0,  entry:3688.289, currency:'ARS' },
-    { id: uid(), ticker:'MELI',  name:'MercadoLibre',            qty:11778,  current:21040.0, entry:27193.673,currency:'ARS' },
-    { id: uid(), ticker:'METR',  name:'Metrogas',                    qty:67549,  current:1952.0,  entry:2569.228, currency:'ARS' },
-    { id: uid(), ticker:'NU',   name:'Nu Holdings',                  qty:23692,  current:9835.0,  entry:13847.281, currency:'ARS' },
-    { id: uid(), ticker:'PAMP',  name:'Pampa Energía',            qty:13479,  current:5110.0,  entry:5390.0,  currency:'ARS' },
-    { id: uid(), ticker:'SUPV',  name:'Supervielle',                  qty:7556,   current:3355.0,  entry:3292.040,  currency:'ARS' },
-    { id: uid(), ticker:'TRAN',  name:'Transener',           qty:12923,  current:3935.0,  entry:3490.908, currency:'ARS' },
-    { id: uid(), ticker:'TXAR',  name:'Ternium Arg.',           qty:75573,  current:686.5,   entry:567.12,  currency:'ARS' },
-    { id: uid(), ticker:'VALO',  name:'Bco. de Valores',       qty:110874,  current:631.0,   entry:456.095,  currency:'ARS' },
+    { id: uid(), ticker:'A3',    name:'A3 Mercados',            qty:7534,   current:3500,  entry:3093.829, currency:'ARS' },
+    { id: uid(), ticker:'ALUAR', name:'Aluar',          qty:31754,  current:981,  entry:740.67,  currency:'ARS' },
+    { id: uid(), ticker:'BBAR',  name:'BBVA Argentina',     qty:3132,   current:10170, entry:9552.913,  currency:'ARS' },
+    { id: uid(), ticker:'BHIP',  name:'Bco. Hipotecario',           qty:107497, current:362,   entry:443.988,  currency:'ARS' },
+    { id: uid(), ticker:'BMA',   name:'Banco Macro',                  qty:6759,   current:14410, entry:14490.822, currency:'ARS' },
+    { id: uid(), ticker:'BPAT',  name:'Bco. Patagonia',              qty:14338,   current:2125,  entry:2264.69, currency:'ARS' },
+    { id: uid(), ticker:'BYMA',  name:'BYMA', qty:294538, current:310,   entry:262.041,  currency:'ARS' },
+    { id: uid(), ticker:'CEPU',  name:'Central Puerto',              qty:45395,  current:2307,  entry:2398.984, currency:'ARS' },
+    { id: uid(), ticker:'CRES',  name:'Cresud',                      qty:9449,   current:1756,  entry:1766.018, currency:'ARS' },
+    { id: uid(), ticker:'ETHA',  name:'ETH Argentina',                qty:9719,   current:3737.5,  entry:6399.594, currency:'ARS' },
+    { id: uid(), ticker:'GGAL',  name:'Gpo. Fin. Galicia',          qty:46902,  current:7790,  entry:8457.674, currency:'ARS' },
+    { id: uid(), ticker:'LOMA',  name:'Loma Negra',             qty:46372,  current:3607.5,  entry:3688.289, currency:'ARS' },
+    { id: uid(), ticker:'MELI',  name:'MercadoLibre',            qty:11778,  current:22100, entry:27193.673,currency:'ARS' },
+    { id: uid(), ticker:'METR',  name:'Metrogas',                    qty:67549,  current:1881,  entry:2569.228, currency:'ARS' },
+    { id: uid(), ticker:'NU',   name:'Nu Holdings',                  qty:23692,  current:10390,  entry:13847.281, currency:'ARS' },
+    { id: uid(), ticker:'PAMP',  name:'Pampa Energía',            qty:13479,  current:5120,  entry:5390.0,  currency:'ARS' },
+    { id: uid(), ticker:'SUPV',  name:'Supervielle',                  qty:7556,   current:3010,  entry:3292.040,  currency:'ARS' },
+    { id: uid(), ticker:'TRAN',  name:'Transener',           qty:12923,  current:3717.5,  entry:3490.908, currency:'ARS' },
+    { id: uid(), ticker:'TXAR',  name:'Ternium Arg.',           qty:75573,  current:662.5,   entry:567.12,  currency:'ARS' },
+    { id: uid(), ticker:'VALO',  name:'Bco. de Valores',       qty:110874,  current:655,   entry:456.095,  currency:'ARS' },
   ];
-  state.caucion = 558657304;
+  state.caucion = 564400000;
   state.ons = [
-    { id: uid(), ticker:'IRCPO', name:'ON IRSA Prop.',             qty:6602,   current:1591.0,  entry:1557.4,  currency:'ARS' },
-    { id: uid(), ticker:'TLCPO', name:'ON Telecom 2026', qty:207728, current:1628.7, entry:1530.423, currency:'ARS' },
-    { id: uid(), ticker:'YMCJO', name:'ON YPF 2033', qty:172694, current:1553.0, entry:1453.987, currency:'ARS' },
+    { id: uid(), ticker:'IRCPO', name:'ON IRSA Prop.',             qty:6602,   current:1660.0,  entry:1557.4,  currency:'ARS' },
+    { id: uid(), ticker:'TLCPO', name:'ON Telecom 2026', qty:207728, current:1700.0, entry:1530.423, currency:'ARS' },
+    { id: uid(), ticker:'YMCJO', name:'ON YPF 2033', qty:172694, current:1613.3, entry:1453.987, currency:'ARS' },
   ];
   state.cedears = [];
   state.bonos = [
-    { id: uid(), ticker:'AE38',  name:'Bono Arg. 2038',              qty:588907, current:1214.7, entry:1158.018, currency:'ARS', tipo:'HD' },
-    { id: uid(), ticker:'AL29',  name:'Bono Arg. 2029',         qty:30720,  current:941.8,  entry:915.144,   currency:'ARS', tipo:'HD' },
-    { id: uid(), ticker:'AL30',  name:'Bono Arg. 2030',         qty:159044, current:936.2,  entry:868.287,  currency:'ARS', tipo:'HD' },
-    { id: uid(), ticker:'AL41',  name:'Bono Arg. 2041',          qty:1063376, current:1100.5, entry:866.721,  currency:'ARS', tipo:'HD' },
-    { id: uid(), ticker:'AO28',  name:'Bono Tes. 2028',     qty:60914,  current:1413.6, entry:1353.681, currency:'ARS', tipo:'HD' },
-    { id: uid(), ticker:'BA37D', name:'Prov. BsAs 2037', qty:171819,  current:1121.8, entry:1118.261, currency:'ARS', tipo:'HD' },
-    { id: uid(), ticker:'BB37D', name:'Pcia. BsAs 2037',      qty:42119,  current:1133.4, entry:1126.965, currency:'ARS', tipo:'HD' },
-    { id: uid(), ticker:'GD29',  name:'Bono Arg. 2029',       qty:480,    current:960.6,  entry:926.0,  currency:'ARS', tipo:'HD' },
-    { id: uid(), ticker:'GD30',  name:'Bono Arg. 2030',     qty:91380,   current:958.3,  entry:931.61,  currency:'ARS', tipo:'HD' },
-    { id: uid(), ticker:'GD38',  name:'Bono Arg. 2038',         qty:46602,  current:1278.0, entry:1248.6,  currency:'ARS', tipo:'HD' },
-    { id: uid(), ticker:'GD41',  name:'Bono Arg. 2041',     qty:797285,     current:1133.0, entry:1050.023, currency:'ARS' },
-    { id: uid(), ticker:'TX28',  name:'CER 2028',       qty:6740582,    current:16.825,   entry:17.642,    currency:'ARS', tipo:'CER' },
-    { id: uid(), ticker:'TZXM9', name:'CER 03/29', qty:52353577, current:0.889, entry:0.829, currency:'ARS', tipo:'CER' },
-    { id: uid(), ticker:'TZXS8', name:'CER 09/28', qty:422364877,  current:0.9235,   entry:0.872,   currency:'ARS', tipo:'CER' },
+    { id: uid(), ticker:'AE38',  name:'Bono Arg. 2038',              qty:872289, current:1275.0, entry:1195.879, currency:'ARS', tipo:'HD' },
+    { id: uid(), ticker:'AL29',  name:'Bono Arg. 2029',         qty:30720,  current:984.2,  entry:915.144,   currency:'ARS', tipo:'HD' },
+    { id: uid(), ticker:'AL30',  name:'Bono Arg. 2030',         qty:159044, current:975.5,  entry:868.287,  currency:'ARS', tipo:'HD' },
+    { id: uid(), ticker:'AL41',  name:'Bono Arg. 2041',          qty:1142696, current:1175.1, entry:886.310,  currency:'ARS', tipo:'HD' },
+    { id: uid(), ticker:'AO28',  name:'Bono Tes. 2028',     qty:60914,  current:1465.9, entry:1353.681, currency:'ARS', tipo:'HD' },
+    { id: uid(), ticker:'BA37D', name:'Prov. BsAs 2037', qty:171819,  current:1180.0, entry:1118.261, currency:'ARS', tipo:'HD' },
+    { id: uid(), ticker:'BB37D', name:'Pcia. BsAs 2037',      qty:42119,  current:1195.0, entry:1126.965, currency:'ARS', tipo:'HD' },
+    { id: uid(), ticker:'GD29',  name:'Bono Arg. 2029',       qty:480,    current:1008.5,  entry:926.0,  currency:'ARS', tipo:'HD' },
+    { id: uid(), ticker:'GD30',  name:'Bono Arg. 2030',     qty:91380,   current:999.5,  entry:931.61,  currency:'ARS', tipo:'HD' },
+    { id: uid(), ticker:'GD38',  name:'Bono Arg. 2038',         qty:46602,  current:1348.0, entry:1248.6,  currency:'ARS', tipo:'HD' },
+    { id: uid(), ticker:'GD41',  name:'Bono Arg. 2041',     qty:797285,     current:1198.0, entry:1050.023, currency:'ARS' },
+    { id: uid(), ticker:'TX28',  name:'CER 2028',       qty:6740582,    current:16.75,   entry:17.642,    currency:'ARS', tipo:'CER' },
+    { id: uid(), ticker:'TZXM9', name:'CER 03/29', qty:44456751, current:0.8798, entry:0.829, currency:'ARS', tipo:'CER' },
   ];
   save();
 } // fin bloque datos
@@ -727,7 +726,7 @@ function uid() { return Date.now() + Math.random(); }
 function save() {
   try { localStorage.setItem(KEY, JSON.stringify(state)); } catch(e) {}
 }
-function fx() { return parseFloat(document.getElementById('fx-rate').value) || 1450; }
+function fx() { return parseFloat(document.getElementById('fx-rate').value) || 1521.37; }
 
 // ─── CALCULATIONS ────────────────────────────────────────
 function stockUSD(r)  { const val=(r.qty||0)*(r.current||0); return (r.currency==='ARS') ? val/fx() : val; }
@@ -1192,7 +1191,7 @@ function esc(s){ return (s||'').replace(/"/g,'&quot;').replace(/</g,'&lt;').repl
 // init
 document.getElementById('client-name-text').textContent = state.clientName;
 if(document.getElementById('caucion-input')) document.getElementById('caucion-input').value = state.caucion||0;
-document.getElementById('fx-rate').value = state.fx||1200;
+document.getElementById('fx-rate').value = state.fx||1521.37;
 document.getElementById('date-badge').textContent = new Date().toLocaleDateString('es-AR',{day:'2-digit',month:'long',year:'numeric'});
 
 renderAll();
